@@ -16,35 +16,12 @@ app.get("/", (req, res) => {
 });
 
 
-// 🔥 TRIAL CHECK MIDDLEWARE (GLOBAL)
-app.use((req, res, next) => {
-  // Only protect API routes (skip homepage)
-  if (req.path.startsWith("/api")) {
-    
-    // You MUST send user info from frontend (later step)
-    
-
-    if (user && user.plan === "trial") {
-      const now = new Date();
-      const trialEnd = new Date(user.trialEnd);
-
-      if (now > trialEnd) {
-        return res.status(403).json({
-          message: "Your 15-day free trial has expired. Please subscribe."
-        });
-      }
-    }
-  }
-
-  next();
-});
-
+// 🔥 REMOVE BROKEN TRIAL MIDDLEWARE FOR NOW
+// (We already handle trial inside workerRoutes)
 
 app.use("/api/workers", workerRoutes);
 app.use("/api/payfast", payfastRoutes);
 
-const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+// ❗ VERCEL REQUIRES THIS (NOT app.listen)
+module.exports = app;
