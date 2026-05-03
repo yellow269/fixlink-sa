@@ -15,6 +15,31 @@ app.get("/", (req, res) => {
   res.send("FixLink SA Backend Running");
 });
 
+
+// 🔥 TRIAL CHECK MIDDLEWARE (GLOBAL)
+app.use((req, res, next) => {
+  // Only protect API routes (skip homepage)
+  if (req.path.startsWith("/api")) {
+    
+    // You MUST send user info from frontend (later step)
+    
+
+    if (user && user.plan === "trial") {
+      const now = new Date();
+      const trialEnd = new Date(user.trialEnd);
+
+      if (now > trialEnd) {
+        return res.status(403).json({
+          message: "Your 15-day free trial has expired. Please subscribe."
+        });
+      }
+    }
+  }
+
+  next();
+});
+
+
 app.use("/api/workers", workerRoutes);
 app.use("/api/payfast", payfastRoutes);
 
