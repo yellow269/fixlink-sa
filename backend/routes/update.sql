@@ -1,0 +1,5 @@
+ALTER TABLE workers 
+ADD COLUMN city TEXT,
+ADD COLUMN plan TEXT,
+ADD COLUMN trial_start TIMESTAMP,
+ADD COLUMN trial_end TIMESTAMP;
