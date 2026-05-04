@@ -14,7 +14,7 @@ const isTrialActive = (trialEnd) => {
 // ✅ POST - Register worker (WITH TRIAL)
 router.post("/register", async (req, res) => {
   try {
-    const { name, skill, location, phone } = req.body;
+    const { name, skill, city, phone } = req.body;
 
     const now = new Date();
     const trialEnd = new Date();
