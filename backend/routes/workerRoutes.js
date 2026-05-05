@@ -2,28 +2,27 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../db");
 
-// 🔥 TRIAL CHECK FUNCTION
+// 🔥 TRIAL CHECK
 const isTrialActive = (trialEnd) => {
   if (!trialEnd) return true;
-
-  const now = new Date();
-  return now <= new Date(trialEnd);
+  return new Date() <= new Date(trialEnd);
 };
 
-
-// ✅ POST - Register worker (WITH TRIAL)
+// ✅ REGISTER WORKER
 router.post("/register", async (req, res) => {
   try {
     const { name, skill, city, phone } = req.body;
+
+    const location = city;
 
     const now = new Date();
     const trialEnd = new Date();
     trialEnd.setDate(now.getDate() + 15);
 
     const result = await pool.query(
-      `INSERT INTO workers 
-      (name, skill, location, phone, plan, trial_start, trial_end) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7) 
+      `INSERT INTO workers
+      (name, skill, location, phone, plan, trial_start, trial_end)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *`,
       [name, skill, location, phone, "trial", now, trialEnd]
     );
@@ -39,30 +38,19 @@ router.post("/register", async (req, res) => {
   }
 });
 
-
-// ✅ GET - Fetch all workers (WITH TRIAL CHECK)
+// ✅ GET WORKERS
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT * FROM workers ORDER BY id DESC"
     );
 
-    const workers = result.rows;
-
-    // 🔥 Check trial for each worker
-    const activeWorkers = workers.filter(worker => {
+    const activeWorkers = result.rows.filter(worker => {
       if (worker.plan === "trial") {
         return isTrialActive(worker.trial_end);
       }
-      return true; // premium users always allowed
+      return true;
     });
-
-    // ❌ If ALL expired
-    if (activeWorkers.length === 0) {
-      return res.status(403).json({
-        message: "All trials expired. Please subscribe."
-      });
-    }
 
     res.json(activeWorkers);
 
